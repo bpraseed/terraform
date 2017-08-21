@@ -43,20 +43,4 @@ resource "aws_instance" "cloudera-director" {
 
     ]
   }
-
-/*
-  user_data = <<-EOF
-              #!/bin/bash
-              echo "Hello Cloudera" > index.txt
-              yum install wget
-              
-              
-              
-              
-              systemctl disable firewalld
-              systemctl stop firewalld
-              EOF
-*/
-
-
 }
