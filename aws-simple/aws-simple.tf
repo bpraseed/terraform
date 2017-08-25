@@ -58,3 +58,44 @@ resource "aws_instance" "Worker" {
 }
 
 
+resource "aws_instance" "cdsw" {
+  ami = "ami-af4333cf"
+  instance_type = "m4.4xlarge"
+
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = 100
+  }
+
+  ebs_block_device {
+    device_name = "/dev/sdf"
+    volume_type = "gp2"
+    volume_size = 500
+  }
+
+  ebs_block_device{
+      device_name = "/dev/sdg"
+      volume_size = 1000
+      volume_type = "io1"
+      iops = 20000
+    }
+
+  key_name = "praseed-west-nc"
+  tags {
+    Name = "cdsw"
+    Owner = "praseed"
+  }
+  associate_public_ip_address = "true"
+  security_groups = [ "sg-f71ab893" ] 
+  subnet_id = "subnet-f2b1f3ab"
+
+  user_data = <<-EOF
+              #!/bin/bash
+              echo "Hello Cloudera" > index.txt
+              sed -i.bak -e 's,SELINUX=enforcing,SELINUX=disabled,' /etc/selinux/config 
+              yum install wget
+              reboot
+              EOF
+}
+
+
