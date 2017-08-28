@@ -1,24 +1,25 @@
 provider "aws" {
-  region = "us-west-1"
+  region = "${var.AWS_DEFAULT_REGION}"
 }
 
-resource "aws_instance" "cloudera-manger" {
-  ami = "ami-af4333cf"
-  instance_type = "m4.xlarge"
+
+resource "aws_instance" "cloudera-manager" {
+  ami = "${var.amis["us-west-1-centos_72"]}"
+  instance_type = "${var.type["cloudera_manager"]}"
 
   ebs_block_device {
     device_name = "/dev/sda1"
     volume_type = "gp2"
     volume_size = 100
   }
-  key_name = "praseed-west-nc"
+  key_name = "${var.ec2_keypair_name}"
   tags {
     Name = "Cloudera-Manager"
-    Owner = "praseed"
+    Owner = "${var.owner_tag}"
   }
   associate_public_ip_address = "true"
-  security_groups = [ "sg-f71ab893" ] 
-  subnet_id = "subnet-f2b1f3ab"
+  security_groups = ["${var.security_group}"]
+  subnet_id = "${var.subnet_id}"
 
   user_data = <<-EOF
               #!/bin/bash
@@ -29,23 +30,25 @@ resource "aws_instance" "cloudera-manger" {
               EOF
 }
 
-resource "aws_instance" "Worker" {
-  ami = "ami-af4333cf"
-  instance_type = "r4.xlarge"
+resource "aws_instance" "DataNode" {
+  ami = "${var.amis["us-west-1-centos_72"]}"
+  instance_type = "${var.type["datanode"]}"
+
 
   ebs_block_device {
     device_name = "/dev/sda1"
     volume_type = "gp2"
     volume_size = 100
   }
-  key_name = "praseed-west-nc"
+  key_name = "${var.ec2_keypair_name}"
   tags {
     Name = "worker"
-    Owner = "praseed"
+    Owner = "${var.owner_tag}"
   }
   associate_public_ip_address = "true"
-  security_groups = [ "sg-f71ab893" ] 
-  subnet_id = "subnet-f2b1f3ab"
+  security_groups = ["${var.security_group}"]
+  subnet_id = "${var.subnet_id}"
+
   count = 4
 
   user_data = <<-EOF
@@ -59,8 +62,9 @@ resource "aws_instance" "Worker" {
 
 
 resource "aws_instance" "cdsw" {
-  ami = "ami-af4333cf"
-  instance_type = "m4.4xlarge"
+  ami = "${var.amis["us-west-1-rhel_72"]}"
+  instance_type = "${var.type["cdsw_service"]}"
+
 
   root_block_device {
     volume_type = "gp2"
@@ -80,14 +84,14 @@ resource "aws_instance" "cdsw" {
       iops = 20000
     }
 
-  key_name = "praseed-west-nc"
+  key_name = "${var.ec2_keypair_name}"
   tags {
     Name = "cdsw"
-    Owner = "praseed"
+    Owner = "${var.owner_tag}"
   }
   associate_public_ip_address = "true"
-  security_groups = [ "sg-f71ab893" ] 
-  subnet_id = "subnet-f2b1f3ab"
+  security_groups = ["${var.security_group}"]
+  subnet_id = "${var.subnet_id}"
 
   user_data = <<-EOF
               #!/bin/bash
